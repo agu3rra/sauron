@@ -18,9 +18,30 @@ Simply make an API call (HTTP POST) to https://sauron.com/api/scan containing th
 Sample response:
 ```json
 {
-    "status":"Fail",
+    "status":False,
     "results":{
-        "tls1.0":"We've detected the TLS protocol version 1.0 is enabled in your target host/port. Ensure only 1.2 or above are switched on."
+        "encryption":{
+            "ssl2.0":{
+                "status":True,
+                "info":"You have passed this check."
+            },
+            "ssl3.0":{
+                "status":True,
+                "info":"You have passed this check."
+            },
+            "tls1.0":{
+                "status":False,
+                "info":"You have failed this check. Disable all versions of the TLS protocol prior to 1.2."
+            },
+            "tls1.1":{
+                "status":False,
+                "info":"You have failed this check. Disable all versions of the TLS protocol prior to 1.2."
+            },
+            "tls1.2":{
+                "status":False,
+                "info":"You have failed this check. Eventhough TLS version 1.2 is considered secure, we've detected the use of the following SHA-1 cipher suites: xxxxxxx. Disable them in order to ensure proper encryption is used for your application."
+            }
+        }
     }
 }
 ```
