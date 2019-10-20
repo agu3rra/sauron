@@ -1,3 +1,4 @@
+import re
 import sslyze
 from sslyze.server_connectivity_tester import ServerConnectivityTester, ServerConnectivityError
 from sslyze.synchronous_scanner import SynchronousScanner
@@ -98,18 +99,38 @@ class TlsCheck(object):
                 command)
             
             ciphers = scan_result.accepted_cipher_list
+            if len(ciphers) > 0:
+                is_supported = True
+            else:
+                is_supported = False
+            
             ciphers_supported = []
             problematic_ciphers = []
-            if len(ciphers) > 0: # supported
-                if not is_allowed:
-                    pass
 
+            if not is_allowed and not is_supported:
+                has_passed = True # don't care about cipher suite list
+            elif not is_allowed and is_supported:
+                has_passed = False
+            elif is_allowed and not is_supported:
+                # don't care
+                has_passed = True
+            elif is_allowed and is_supported:
+                #check cipher suite
+                has_passed = True # pass unless a problem is detected.
                 for cipher in ciphers:
-                    ciphers_supported.append(cipher.name)
+                    name = cipher.name
+                    ciphers_supported.append(name)
+                    if re.match(r'.*(SHA)$', name):
+                        has_passed = False
+                        problematic_ciphers.append(name)
+            else:
+                print('One should never get here!')
+                raise OSError('Program logic error.')
+            
             result = {
                 "protocol":protocol,
                 "is_allowed":is_allowed,
-                "has_passed":False,
+                "has_passed":has_passed,
                 "ciphers_supported":ciphers_supported,
                 "problematic_ciphers":problematic_ciphers,
             }
