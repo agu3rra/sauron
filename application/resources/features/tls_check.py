@@ -56,6 +56,7 @@ class TlsCheck(object):
             print('Could not connect to {0}: {1}'.format(
                 self.host,
                 e.error_message))
+            return None
 
         return server_info
 
@@ -64,34 +65,52 @@ class TlsCheck(object):
         Scans target for all policy checks
 
         :returns: (dict)
-            {
-                "ssl2.0":{
-                    "allowed":False,
-                    "passed":False,
-                    "ciphers":[TLS_RSA_WITH_AES_256_CBC_SHA, TLS_RSA_WITH_AES_128_CBC_SHA]
+            [
+                {
+                    "protocol":"ssl2.0",
+                    "is_allowed":False,
+                    "has_passed":False,
+                    "ciphers_supported":[TLS_RSA_WITH_AES_256_CBC_SHA256, TLS_RSA_WITH_AES_128_CBC_SHA]
+                    "problematic_ciphers":[TLS_RSA_WITH_AES_128_CBC_SHA]
                 },
-                "ssl3.0":{
-                    "allowed":False,
-                    "passed":True,
-                    "ciphers":[]
+                {
+                    "protocol":"ssl3.0",
+                    "is_allowed":False,
+                    "has_passed":False,
+                    "ciphers_supported":[TLS_RSA_WITH_AES_256_CBC_SHA256, TLS_RSA_WITH_AES_128_CBC_SHA]
+                    "problematic_ciphers":[TLS_RSA_WITH_AES_128_CBC_SHA]
                 },
                 ...
-            }
+            ]
         """
         server_info = self.connect() # Try handshake
+        if server_info is None:
+            return []
         
         # Retrieve definitions from class to iterate
         synchronous_scanner = SynchronousScanner()
+        results = []
         for protocol, policy in self.policies.items():
             is_allowed = policy['allowed']
             command = policy['command']
             scan_result = synchronous_scanner.run_scan_command(
                 server_info,
                 command)
+            
             ciphers = scan_result.accepted_cipher_list
+            ciphers_supported = []
+            problematic_ciphers = []
             if len(ciphers) > 0: # supported
                 if not is_allowed:
                     pass
 
                 for cipher in ciphers:
-                    print(cipher.name)
+                    ciphers_supported.append(cipher.name)
+            result = {
+                "protocol":protocol,
+                "is_allowed":is_allowed,
+                "has_passed":False,
+                "ciphers_supported":ciphers_supported,
+                "problematic_ciphers":problematic_ciphers,
+            }
+            results.insert(0, result)
