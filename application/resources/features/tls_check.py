@@ -62,6 +62,21 @@ class TlsCheck(object):
     def scan_everything(self):
         """
         Scans target for all policy checks
+
+        :returns: (dict)
+            {
+                "ssl2.0":{
+                    "allowed":False,
+                    "passed":False,
+                    "ciphers":[TLS_RSA_WITH_AES_256_CBC_SHA, TLS_RSA_WITH_AES_128_CBC_SHA]
+                },
+                "ssl3.0":{
+                    "allowed":False,
+                    "passed":True,
+                    "ciphers":[]
+                },
+                ...
+            }
         """
         server_info = self.connect() # Try handshake
         
@@ -73,5 +88,10 @@ class TlsCheck(object):
             scan_result = synchronous_scanner.run_scan_command(
                 server_info,
                 command)
-            for cipher in scan_result.accepted_cipher_list:
-                print(cipher.name)
+            ciphers = scan_result.accepted_cipher_list
+            if len(ciphers) > 0: # supported
+                if not is_allowed:
+                    pass
+
+                for cipher in ciphers:
+                    print(cipher.name)
