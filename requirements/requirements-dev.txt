@@ -1,0 +1,14 @@
+asn1crypto
+cffi
+Click
+cryptography
+Flask
+itsdangerous
+Jinja2
+MarkupSafe
+nassl
+pycparser
+six
+sslyze
+tls-parser
+Werkzeug

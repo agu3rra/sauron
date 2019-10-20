@@ -1,0 +1,14 @@
+asn1crypto==1.2.0
+cffi==1.13.0
+Click==7.0
+cryptography==2.5
+Flask==1.1.1
+itsdangerous==1.1.0
+Jinja2==2.10.3
+MarkupSafe==1.1.1
+nassl==2.2.0
+pycparser==2.19
+six==1.12.0
+sslyze==2.1.4
+tls-parser==1.2.1
+Werkzeug==0.16.0

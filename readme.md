@@ -53,3 +53,6 @@ If you don't want to call our internet hosted server, feel free to run one of yo
 > docker run -p 2099:8080 sauron
 
 In this model, your target needs to be in the same network as that of your container.
+
+# References
+* This application uses a wrapper on top of the [SSLYZE package](https://github.com/nabla-c0d3/sslyze). Thank you, Alban     Diquet!
