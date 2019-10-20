@@ -61,10 +61,12 @@ class TlsCheck(object):
 
         return server_info
 
-    def scan_everything(self):
+    def scan(self, protocol='all'):
         """
         Scans target for all policy checks
 
+        :param protocol: (str) Default: all; It can also be one of the keys of
+                         self.policies
         :returns: (dict)
             [
                 {
@@ -74,16 +76,18 @@ class TlsCheck(object):
                     "ciphers_supported":[TLS_RSA_WITH_AES_256_CBC_SHA256, TLS_RSA_WITH_AES_128_CBC_SHA]
                     "problematic_ciphers":[TLS_RSA_WITH_AES_128_CBC_SHA]
                 },
-                {
-                    "protocol":"ssl3.0",
-                    "is_allowed":False,
-                    "has_passed":False,
-                    "ciphers_supported":[TLS_RSA_WITH_AES_256_CBC_SHA256, TLS_RSA_WITH_AES_128_CBC_SHA]
-                    "problematic_ciphers":[TLS_RSA_WITH_AES_128_CBC_SHA]
-                },
                 ...
             ]
         """
+        # Define if one of all policies will be checked
+        policies = {}
+        if protocol == 'all':
+            policies = self.policies
+        elif protocol in list(self.policies):
+            policies[protocol] = self.policies[protocol]
+        else:
+            raise ValueError('Invalid protocol selected for scanning.')
+
         server_info = self.connect() # Try handshake
         if server_info is None:
             return []
@@ -91,7 +95,7 @@ class TlsCheck(object):
         # Retrieve definitions from class to iterate
         synchronous_scanner = SynchronousScanner()
         results = []
-        for protocol, policy in self.policies.items():
+        for protocol, policy in policies.items():
             is_allowed = policy['allowed']
             command = policy['command']
             scan_result = synchronous_scanner.run_scan_command(

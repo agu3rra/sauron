@@ -1,6 +1,8 @@
 # Sauron Security Scanner (Work in progress...)
 The eye that sees security vulnerabilities in web applications.
 
+![eye](docs/images/eye.jpg)
+
 # Features
 1. TLS protocol check.
 1. Encryption cipher suite check
