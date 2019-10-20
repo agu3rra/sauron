@@ -8,6 +8,7 @@ Jinja2
 MarkupSafe
 nassl
 pycparser
+pytest
 six
 sslyze
 tls-parser

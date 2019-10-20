@@ -22,6 +22,9 @@ class TestTls():
         
         pass
 
+    def test_invalid_protocol_scan(self):
+        pass
+
     def test_cipher_suite(self):
         #validates if cipher suite check is working
         pass
