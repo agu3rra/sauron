@@ -38,7 +38,7 @@ class TlsCheck(object):
             },
         }
 
-        if not isinstance(host, str) and not isinstance(port, int):
+        if not isinstance(host, str) or not isinstance(port, int):
             raise TypeError('TlsCheck class not properly initialized.')
 
     def connect(self, proxy=None):
