@@ -168,3 +168,4 @@ class TlsCheck(object):
                 "problematic_ciphers":problematic_ciphers,
             }
             results.insert(0, result)
+        return results

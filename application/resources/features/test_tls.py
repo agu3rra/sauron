@@ -31,7 +31,10 @@ class TestTls():
         assert 1==0
 
     def test_incorrect_proxy_settings(self):
-        assert 1==0
+        with pytest.raises(ValueError):
+            self.tls_check.scan(proxy={"surver":"uol.com", "port":443})
+        with pytest.raises(ValueError):
+            self.tls_check.scan(proxy={"server":"uol.com", "part":443})
 
     def test_proxy_scan(self):
         assert 1==0
@@ -45,7 +48,12 @@ class TestTls():
         assert 1==0
 
     def test_invalid_protocol_scan(self):
-        assert 1==0
+        with pytest.raises(ValueError):
+            self.tls_check.scan(protocol='ssl')
+        with pytest.raises(ValueError):
+            self.tls_check.scan(protocol='random')
+        with pytest.raises(ValueError):
+            self.tls_check.scan(protocol='tls')
 
     def test_cipher_suite(self):
         #validates if cipher suite check is working
