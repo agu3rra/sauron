@@ -10,10 +10,9 @@ RUN useradd -U sauron && \
     chmod 770 -R /sauron
 
 # Setup requirements file according to deployment option (set on ENV)
-RUN if $DEPLOYMENT -eq 'DEV'; \
-    then $REQUIREMENTS_FILE='requirements-dev.txt' \
-    else $REQUIREMENTS_FILE='requirements-prd.txt' \
-    fi
+RUN if [ "$DEPLOYMENT" = "DEV" ]; then \
+    REQUIREMENTS_FILE="requirements-dev.txt" else REQUIREMENTS_FILE="requirements.txt" fi && \
+    echo $REQUIREMENTS_FILE
 
 # Install dependencies
 RUN cd requirements && \
