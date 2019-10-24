@@ -1,4 +1,5 @@
 import re
+import socket
 import sslyze
 from sslyze.server_connectivity_tester import ServerConnectivityTester, ServerConnectivityError
 from sslyze.synchronous_scanner import SynchronousScanner
@@ -8,7 +9,17 @@ from sslyze.ssl_settings import HttpConnectTunnelingSettings
 
 class TlsCheck(object):
 
-    def __init__(self, host, port):
+    def __init__(self, host, port, proxy=None):
+        """
+        :param proxy: (dict) Default: None; Set this one up if you wish to use
+                a proxy to hit your target host. E.g.:
+                {
+                    "server":"someproxy.com",
+                    "port":6000,
+                    "user":"optional",
+                    "pass":"secretpass"
+                }
+        """
         self.host = host
         self.port = port
         self.policies = {
@@ -40,8 +51,26 @@ class TlsCheck(object):
 
         if not isinstance(host, str) or not isinstance(port, int):
             raise TypeError('TlsCheck class not properly initialized.')
+        
+        # Proxy setup
+        if proxy is not None:
+            if not ("server" in proxy and "port" in proxy):
+                raise ValueError('Invalid proxy settings detected.')
+            proxy_server = proxy['server']
+            proxy_port = proxy['port']
+            proxy_user = proxy.get('user', None)
+            proxy_pass = proxy.get('pass', None)
+            tunnel_settings = HttpConnectTunnelingSettings(
+                proxy_server,
+                proxy_port,
+                basic_auth_user=proxy_user,
+                basic_auth_password=proxy_pass)
+        else:
+            tunnel_settings = None
 
-    def connect(self, proxy=None):
+        self.proxy = tunnel_settings
+
+    def connect(self):
         """
         Establishes SSL connectivity with target host.
 
@@ -51,7 +80,7 @@ class TlsCheck(object):
             server_tester = ServerConnectivityTester(
                 hostname=self.host,
                 port=self.port,
-                http_tunneling_settings=proxy
+                http_tunneling_settings=self.proxy
             )
             print('Testing connectivity with {server_tester.hostname}:"\
                 "{server_tester.port}...')
@@ -65,21 +94,33 @@ class TlsCheck(object):
 
         return server_info
 
-    def scan(self, protocol='all', proxy=None):
+    def check_service(self):
+        """
+        validates if there is a service running in case ssl handshake fails
+        add proxy later
+        """
+        s = socket.socket()
+        try:            
+            s.connect((self.host, self.port))
+            print("Service responsive on {}:{}".format(
+                self.host,self.port))
+            return True
+        except Exception as e:
+            print("Unable to connect to {}:{}:\n{}".format(
+                self.host, self.port, e))
+            return False
+        finally:
+            s.close()
+
+    def scan(self, protocol='all'):
         """
         Scans target for all policy checks
 
         :param protocol: (str) Default: all; It can also be one of the keys of
                          self.policies
-        :param proxy: (dict) Default: None; Set this one up if you wish to use
-                      a proxy to hit your target host. E.g.:
-                      {
-                          "server":"someproxy.com",
-                          "port":6000,
-                          "user":"optional",
-                          "password":"secretpass"
-                      }
-        :returns: (dict)
+
+        :returns: (array) of (dict)
+            [] empty array when there is no service running in host:port.
             [
                 {
                     "protocol":"ssl2.0",
@@ -100,26 +141,21 @@ class TlsCheck(object):
         else:
             raise ValueError('Invalid protocol selected for scanning.')
 
-        # Proxy setup
-        if proxy is not None:
-            if not ("server" in proxy and "port" in proxy):
-                raise ValueError('Invalid proxy settings detected.')
-            proxy_server = proxy['server']
-            proxy_port = proxy['port']
-            proxy_user = proxy.get('user', None)
-            proxy_pass = proxy.get('password', None)
-            tunnel_settings = HttpConnectTunnelingSettings(
-                proxy_server,
-                proxy_port,
-                basic_auth_user=proxy_user,
-                basic_auth_password=proxy_pass)
-        else:
-            tunnel_settings = None
-
         # Try handshake
-        server_info = self.connect(tunnel_settings)
+        server_info = self.connect()
         if server_info is None:
-            return []
+            if self.check_service():
+                return [
+                    {
+                        "protocol":'unencrypted',
+                        "is_allowed":False,
+                        "has_passed":False,
+                        "ciphers_supported":[],
+                        "problematic_ciphers":[],
+                    }
+                ]
+            else:
+                return []
         
         # Retrieve definitions from class to iterate
         synchronous_scanner = SynchronousScanner()
@@ -153,7 +189,8 @@ class TlsCheck(object):
                 for cipher in ciphers:
                     name = cipher.name
                     ciphers_supported.append(name)
-                    if re.match(r'.*(SHA)$', name):
+                    if re.match(r'.*(SHA)$', name) or \
+                        (name.find('RSA_WITH_AES') == -1):
                         has_passed = False
                         problematic_ciphers.append(name)
             else:
