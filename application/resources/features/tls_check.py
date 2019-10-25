@@ -124,6 +124,7 @@ class TlsCheck(object):
             [
                 {
                     "protocol":"ssl2.0",
+                    "is_supported":True,
                     "is_allowed":False,
                     "has_passed":False,
                     "ciphers_supported":[TLS_RSA_WITH_AES_256_CBC_SHA256, TLS_RSA_WITH_AES_128_CBC_SHA]
@@ -148,6 +149,7 @@ class TlsCheck(object):
                 return [
                     {
                         "protocol":'unencrypted',
+                        "is_supported":True,
                         "is_allowed":False,
                         "has_passed":False,
                         "ciphers_supported":[],
@@ -167,38 +169,42 @@ class TlsCheck(object):
                 server_info,
                 command)
             
+            # Detect cipher support
             ciphers = scan_result.accepted_cipher_list
-            if len(ciphers) > 0:
+            ciphers_supported = []
+            problematic_ciphers = []
+            for cipher in ciphers:
+                name = cipher.name
+                ciphers_supported.append(name)
+                if re.match(r'.*(SHA)$', name) or \
+                    (name.find('RSA_WITH_AES') == -1):
+                    problematic_ciphers.append(name)
+
+            # Determine support based on ciphers            
+            if len(ciphers_supported) > 0:
                 is_supported = True
             else:
                 is_supported = False
-            
-            ciphers_supported = []
-            problematic_ciphers = []
 
+            # Determine if the check has passed for this protocol
             if not is_allowed and not is_supported:
                 has_passed = True # don't care about cipher suite list
             elif not is_allowed and is_supported:
                 has_passed = False
             elif is_allowed and not is_supported:
-                # don't care
                 has_passed = True
             elif is_allowed and is_supported:
-                #check cipher suite
-                has_passed = True # pass unless a problem is detected.
-                for cipher in ciphers:
-                    name = cipher.name
-                    ciphers_supported.append(name)
-                    if re.match(r'.*(SHA)$', name) or \
-                        (name.find('RSA_WITH_AES') == -1):
-                        has_passed = False
-                        problematic_ciphers.append(name)
+                if len(problematic_ciphers) > 0:
+                    has_passed = False
+                else:
+                    has_passed = True
             else:
                 print('One should never get here!')
                 raise OSError('Program logic error.')
             
             result = {
                 "protocol":protocol,
+                "is_supported":is_supported,
                 "is_allowed":is_allowed,
                 "has_passed":has_passed,
                 "ciphers_supported":ciphers_supported,

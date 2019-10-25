@@ -32,20 +32,35 @@ class TestTls():
 
     def test_incorrect_proxy_settings(self):
         with pytest.raises(ValueError):
-            self.tls_check.scan(proxy={"surver":"uol.com", "port":443})
+            _ = TlsCheck(host='uol.com',
+                        port=443,
+                        proxy={"surver":"uol.com", "port":443})
         with pytest.raises(ValueError):
-            self.tls_check.scan(proxy={"server":"uol.com", "part":443})
+            _ = TlsCheck(host='uol.com',
+                        port=443,
+                        proxy={"server":"uol.com", "part":443})
 
     def test_proxy_scan(self):
         assert 1==0
 
     def test_protocols_single(self):
         # Validates a single TLS protocol check
-        assert 1==0
+        results = self.tls_check.scan(protocol='tls1.2')
+        assert len(results) == 1
+        result = results.pop()
+        assert result['protocol'] == 'tls1.2'
+        assert result['is_supported'] == False
+        assert result['is_allowed'] == True
+        assert result['has_passed'] == True
+        assert result['ciphers_supported'] == []
+        assert result['problematic_ciphers'] == []
 
     def test_protocols_all(self):
         # Validates each TLS protocol version test works as expected
-        assert 1==0
+        results = self.tls_check.scan()
+        assert len(results) == 6
+        for result in results:
+            assert result['protocol'] in self.tls_check.policies
 
     def test_invalid_protocol_scan(self):
         with pytest.raises(ValueError):
@@ -54,7 +69,3 @@ class TestTls():
             self.tls_check.scan(protocol='random')
         with pytest.raises(ValueError):
             self.tls_check.scan(protocol='tls')
-
-    def test_cipher_suite(self):
-        #validates if cipher suite check is working
-        assert 1==0
