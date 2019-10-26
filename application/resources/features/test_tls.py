@@ -27,8 +27,13 @@ class TestTls():
         server = self.tls_check.connect()
         assert server is not None
 
-    def test_unable_to_connect_ssl(self):
-        assert 1==0
+    def test_plain_http_service(self):
+        # Try to connect to a plain http server
+        check = TlsCheck(host='caixa.gov.br', port=80)
+        results = check.scan()
+        assert len(results) == 1
+        result = results.pop()
+        assert result['protocol'] == 'unencrypted'
 
     def test_incorrect_proxy_settings(self):
         with pytest.raises(ValueError):
@@ -41,7 +46,8 @@ class TestTls():
                         proxy={"server":"uol.com", "part":443})
 
     def test_proxy_scan(self):
-        assert 1==0
+        # I need to spin up a proxy server before I can test this
+        assert True==False
 
     def test_protocols_single(self):
         # Validates a single TLS protocol check

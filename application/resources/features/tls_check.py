@@ -1,5 +1,5 @@
 import re
-import socket
+import requests
 import sslyze
 from sslyze.server_connectivity_tester import ServerConnectivityTester, ServerConnectivityError
 from sslyze.synchronous_scanner import SynchronousScanner
@@ -67,8 +67,8 @@ class TlsCheck(object):
                 basic_auth_password=proxy_pass)
         else:
             tunnel_settings = None
-
-        self.proxy = tunnel_settings
+        self.tunnel = tunnel_settings
+        self.proxy = proxy
 
     def connect(self):
         """
@@ -80,37 +80,48 @@ class TlsCheck(object):
             server_tester = ServerConnectivityTester(
                 hostname=self.host,
                 port=self.port,
-                http_tunneling_settings=self.proxy
+                http_tunneling_settings=self.tunnel
             )
-            print('Testing connectivity with {server_tester.hostname}:"\
-                "{server_tester.port}...')
+            print("Testing connectivity with {0}:{1}".format(self.host,
+                                                             self.port))
             server_info = server_tester.perform()
         except ServerConnectivityError as e:
             # Could not establish an SSL connection to the server
-            print('Could not connect to {0}: {1}'.format(
-                self.host,
-                e.error_message))
+            print("Could not connect to {0}:{1}".format(self.host,
+                                                        e.error_message))
             return None
 
         return server_info
 
     def check_service(self):
         """
-        validates if there is a service running in case ssl handshake fails
-        add proxy later
+        validates if there is an http service running in case ssl handshake 
+        fails.
+
+        :return: True if service found (HTTP status 200 - 499).
         """
-        s = socket.socket()
-        try:            
-            s.connect((self.host, self.port))
-            print("Service responsive on {}:{}".format(
-                self.host,self.port))
+        proxy_string = "http://"
+        if self.proxy is not None:
+            if "user" in self.proxy and "pass" in self.proxy:
+                proxy_string += "{}:{}@".format(self.proxy['user'],
+                                                self.proxy['pass'])
+            proxy_string += "{}:{}".format(self.proxy['server'],
+                                           self.proxy['port'])
+            proxies = {
+                "http": proxy_string,
+                "https": proxy_string,
+            }
+        else:
+            proxies = None
+        url = "http://{}:{}".format(self.host, self.port)
+        response = requests.get(url, proxies=proxies)
+        status = response.status_code
+        if status >= 200 and status < 500:
+            print("Service is up on http. Status code: {}".format(status))
             return True
-        except Exception as e:
-            print("Unable to connect to {}:{}:\n{}".format(
-                self.host, self.port, e))
+        else:
+            print("Service is down on http. Status code: {}".format(status))
             return False
-        finally:
-            s.close()
 
     def scan(self, protocol='all'):
         """
