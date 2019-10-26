@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM python:3.6-alpine
 COPY . /sauron
 WORKDIR /sauron
 
@@ -11,14 +11,14 @@ RUN addgroup -S mordor && \
     chmod 770 -R /sauron
 
 # Install python3 and pip
-RUN apk update && \
-    apk install python3 python3-pip
+RUN apk update
 
 # Setup requirements file according to deployment option (set on ENV)
 RUN if [ "$THIS_DEPLOYMENT_ENVRIONMENT" = "DEV" ]; \
     then REQUIREMENTS_FILE="requirements-dev.txt"; \
     else REQUIREMENTS_FILE="requirements.txt"; fi && \
     echo "Using $REQUIREMENTS_FILE for installing requirements." && \
+    python3 -m pip install pip --upgrade && \
     cd requirements && \
     pip3 install -r $REQUIREMENTS_FILE
 
