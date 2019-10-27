@@ -1,20 +1,22 @@
-FROM python:3.6-alpine
+FROM ubuntu:latest
 COPY . /sauron
 WORKDIR /sauron
-
+ENV ENVIRONMENT "DEV"
 USER root
+
 # Create non root user and change permissions on main app folder
-RUN addgroup -S mordor && \ 
-    adduser -S sauron -G mordor && \
+RUN addgroup mordor && \
+    useradd sauron -g mordor && \
     chown sauron /sauron && \
     chgrp mordor /sauron && \
     chmod 770 -R /sauron
 
 # Install python3 and pip
-RUN apk update
+RUN apt-get update -y && \
+    apt-get install -y python3 python3-pip
 
 # Setup requirements file according to deployment option (set on ENV)
-RUN if [ "$THIS_DEPLOYMENT_ENVRIONMENT" = "DEV" ]; \
+RUN if [ "$ENVIRONMENT" == "DEV" ]; \
     then REQUIREMENTS_FILE="requirements-dev.txt"; \
     else REQUIREMENTS_FILE="requirements.txt"; fi && \
     echo "Using $REQUIREMENTS_FILE for installing requirements." && \
@@ -24,7 +26,6 @@ RUN if [ "$THIS_DEPLOYMENT_ENVRIONMENT" = "DEV" ]; \
 
 # Change to non root user
 USER sauron
-
 EXPOSE 2099
 # Start processes using supervisor
 CMD supervisord \
