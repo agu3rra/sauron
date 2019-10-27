@@ -7,7 +7,7 @@ from sslyze.concurrent_scanner import ConcurrentScanner, PluginRaisedExceptionSc
 from sslyze.plugins.openssl_cipher_suites_plugin import Tlsv13ScanCommand, Tlsv12ScanCommand, Tlsv11ScanCommand, Tlsv10ScanCommand, Sslv30ScanCommand, Sslv20ScanCommand
 from sslyze.ssl_settings import HttpConnectTunnelingSettings
 
-class TlsCheck(object):
+class EncryptionCheck(object):
 
     def __init__(self, host, port, proxy=None):
         """
@@ -50,7 +50,7 @@ class TlsCheck(object):
         }
 
         if not isinstance(host, str) or not isinstance(port, int):
-            raise TypeError('TlsCheck class not properly initialized.')
+            raise TypeError('EncryptionCheck class not properly initialized.')
         
         # Proxy setup
         if proxy is not None:

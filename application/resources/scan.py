@@ -1,5 +1,7 @@
 import json
 from flask import Blueprint, Response
+from .scan_templates import scan_definitions, result_template
+
 
 scan = Blueprint('scan', __name__)
 
