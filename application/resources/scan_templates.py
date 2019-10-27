@@ -13,8 +13,18 @@ result_template = {
     ]
 }
 
+scan_response = {
+    "response":False,
+    "results":[]
+}
+
 scan_definitions = {
     "encryption":{
+        "no-service":{
+            "title":"No service",
+            "cwe":0,
+            "description":"No service has been detected in the provided host:port. Either it is not properly setup or it is not reachable by this scanner.",
+        },
         "missing":{
             "title":"Missing Encryption",
             "cwe":311,
