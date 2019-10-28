@@ -31,7 +31,7 @@ def trigger_scan():
                                port=data['target_port'],
                                proxy=proxy_settings)
     check_results = check.scan()
-    
+    # Service did not respond
     if len(check_results) == 0:
         result_definition = definitions['no-service']
         result={}
@@ -45,14 +45,57 @@ def trigger_scan():
                                     "results":[result]}),
                         status=200,
                         mimetype='application/json')
+    # Missing encryption (HTTP plain text)
+    elif len(check_results) == 1:
+        result_definition = definitions['missing']
+        result={}
+        result['category']=category
+        result['result']=False
+        result['title']=result_definition['title']
+        result['description']=result_definition['description']
+        result['cwe']=result_definition['cwe']
+        result['checks']=[]
+        return Response(json.dumps({"response":False,
+                                    "results":[result]}),
+                        status=200,
+                        mimetype='application/json')
+    # SSL handshake worked.
     else:
-        results=[]
-        for one_result in check_results:
-            # RESUME HERE
-            pass
-
-    return Response(json.dumps({"status":"not yet implemented"}),
-                    status=500,
-                    mimetype='application/json')
-
+        response = True
+        result_definition = definitions['weak']
+        result={}
+        result['category']=category
+        result['result']=True
+        result['title']=result_definition['title']
+        result['description']=result_definition['description']
+        result['cwe']=result_definition['cwe']
+        result['checks']=[]
+        # if at least one check failed, then response False
+        for protocol in check_results:
+            name = protocol['protocol']
+            has_passed = protocol['has_passed']
+            if has_passed:
+                this_result=True
+                info = "Application has passed this check successfully."
+            else:
+                this_result=False
+                is_allowed = protocol['is_allowed']
+                if is_allowed: # ciphers issue
+                    ciphers_output = ""
+                    for cipher in protocol['problematic_ciphers']:
+                        ciphers_output += "{}; ".format(cipher)
+                    info = "This TLS protocol version is supported, but you have selected a set of insecure ciphers: {}".format(ciphers_output)
+                else: # tls version issue
+                    info = "Encryption protocol version not supported."
+                result['result']=False
+                response = False # if one fails, all fail.
+            result['checks'].append({
+                "name":name,
+                "result":this_result,
+                "info":info,
+            })
+        return Response(json.dumps({"response":response,
+                                    "results":[result]}),
+                        status=200,
+                        mimetype='application/json')
     
