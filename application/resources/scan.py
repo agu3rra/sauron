@@ -8,15 +8,29 @@ scan = Blueprint('scan', __name__)
 
 @scan.route('/scan', methods=['post'])
 def trigger_scan():
+    """
+    Triggers a scan request. Expected request body:
+    {
+        "target_host":"example.com",
+        "target_port":443,
+        "proxy":{
+            "server":"myproxy.com",
+            "port":8080,
+            "user":"yoga",
+            "pass":"fire123#flame"
+        }
+    }
+    proxy is optional.
+    """
     data = request.get_json()
-    
+
     # Validate scan input
     def validate_scan_input(data):
         if "target_host" in data and "target_port" in data:
             return True
-        return False        
+        return False
     if not validate_scan_input(data):
-        return Response(json.dumps({"response":False,
+        return Response(json.dumps({"result":False,
                                     "info":"This endpoint requires "\
                                         "\"target_host\" and \"target_port\""}),
                     status=400,
@@ -41,7 +55,7 @@ def trigger_scan():
         result['description']=result_definition['description']
         result['cwe']=result_definition['cwe']
         result['checks']=[]
-        return Response(json.dumps({"response":False,
+        return Response(json.dumps({"result":False,
                                     "results":[result]}),
                         status=200,
                         mimetype='application/json')
@@ -55,7 +69,7 @@ def trigger_scan():
         result['description']=result_definition['description']
         result['cwe']=result_definition['cwe']
         result['checks']=[]
-        return Response(json.dumps({"response":False,
+        return Response(json.dumps({"result":False,
                                     "results":[result]}),
                         status=200,
                         mimetype='application/json')
@@ -94,8 +108,7 @@ def trigger_scan():
                 "result":this_result,
                 "info":info,
             })
-        return Response(json.dumps({"response":response,
+        return Response(json.dumps({"result":response,
                                     "results":[result]}),
                         status=200,
                         mimetype='application/json')
-    

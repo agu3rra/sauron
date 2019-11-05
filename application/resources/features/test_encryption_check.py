@@ -4,7 +4,7 @@ import pytest
 from .encryption_check import EncryptionCheck
 
 
-class TestTls():
+class TestEncryptionCheck():
 
     def setup(self):
         # define a valid target for testing

@@ -6,7 +6,7 @@ status = Blueprint('status', __name__)
 @status.route('/')
 def get_status():
     response = {
-        "response":True,
+        "result":True,
         "info":"Sauron sees you..."
     }
     return Response(json.dumps(response),
