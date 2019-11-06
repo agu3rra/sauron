@@ -8,27 +8,31 @@ from app import app
 
 class TestIntegration():
 
-    @pytest.fixture
-    def client(self):
+    def setup(self):
         app.config['TESTING'] = True
-        with app.test_client() as client:
-            yield client
+        self.client = app.test_client()
 
-    def test_status(self, client):
-        response = client.get('/')
+    def test_status(self):
+        response = self.client.get('/')
         response = response.json
         assert isinstance(response, dict)
         assert response['result'] == True
         assert response['info'].find('Sauron') != -1
 
-    def test_scan(self, client):
+    @pytest.mark.parametrize(
+        "host, port, result, num_checks",
+        [
+            pytest.param("uol.com", 443, False, 6)
+        ]
+    )
+    def test_scan(self, host, port, result, num_checks):
         scan_data = {
-            "target_host":"uol.com",
-            "target_port":443
+            "target_host":host,
+            "target_port":port
         }
-        response = client.post('/scan', json=scan_data)
+        response = self.client.post('/scan', json=scan_data)
         response = response.json
         assert isinstance(response, dict)
-        assert response['result'] == False
+        assert response['result'] == result
         num_encryption_checks = len(response['results'][0]['checks'])
-        assert num_encryption_checks == 6
+        assert num_encryption_checks == num_checks
