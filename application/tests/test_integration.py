@@ -24,6 +24,8 @@ class TestIntegration():
         [
             pytest.param("uol.com", 443, None, False, 6),
             pytest.param("pluralsight.com", 443, None, False, 6),
+            pytest.param("caixa.gov.br", 80, None, False, 0), #unencrypted sample
+            #pytest.param("'191.157.90.1'", 80, None, False, 1), #unresponsive sample
         ]
     )
     def test_scan(self, host, port, proxy, exp_result, exp_checks):
