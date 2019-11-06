@@ -45,30 +45,39 @@ def trigger_scan():
                                port=data['target_port'],
                                proxy=proxy_settings)
     check_results = check.scan()
-    # Service did not respond
-    if len(check_results) == 0:
-        result_definition = definitions['no-service']
+    
+    def process_encryption_check(outcome_definition,
+                                 outcome_result,
+                                 checks):
+        """
+        :param outcome_definition: (str) The definition key to pull text from 
+            scan_templates
+        :param outcome_result: (bool) the final outcome of this check
+        :param checks: (arr) the array of checks.
+        """
+        result_definition = definitions[outcome_definition]
         result={}
         result['category']=category
-        result['result']=False
+        result['result']=outcome_result
         result['title']=result_definition['title']
         result['description']=result_definition['description']
         result['cwe']=result_definition['cwe']
-        result['checks']=[]
+        result['checks']=checks
+        return result
+    # Service did not respond
+    if len(check_results) == 0:
+        result = process_encryption_check(outcome_definition='no-service',
+                                          outcome_result=False,
+                                          checks = [])
         return Response(json.dumps({"result":False,
                                     "results":[result]}),
                         status=200,
                         mimetype='application/json')
     # Missing encryption (HTTP plain text)
     elif len(check_results) == 1:
-        result_definition = definitions['missing']
-        result={}
-        result['category']=category
-        result['result']=False
-        result['title']=result_definition['title']
-        result['description']=result_definition['description']
-        result['cwe']=result_definition['cwe']
-        result['checks']=[]
+        result = process_encryption_check(outcome_definition='missing',
+                                          outcome_result=False,
+                                          checks = [])
         return Response(json.dumps({"result":False,
                                     "results":[result]}),
                         status=200,
@@ -98,7 +107,7 @@ def trigger_scan():
                     ciphers_output = ""
                     for cipher in protocol['problematic_ciphers']:
                         ciphers_output += "{}; ".format(cipher)
-                    info = "This TLS protocol version is supported, but you have selected a set of insecure ciphers: {}".format(ciphers_output)
+                    info = "This TLS protocol version is ok to use, but you have selected a set of insecure ciphers: {}".format(ciphers_output)
                 else: # tls version issue
                     info = "Encryption protocol version not supported."
                 result['result']=False

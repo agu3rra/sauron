@@ -22,7 +22,8 @@ class TestIntegration():
     @pytest.mark.parametrize(
         "host, port, proxy, exp_result, exp_checks",
         [
-            pytest.param("uol.com", 443, None, False, 6)
+            pytest.param("uol.com", 443, None, False, 6),
+            pytest.param("pluralsight.com", 443, None, False, 6),
         ]
     )
     def test_scan(self, host, port, proxy, exp_result, exp_checks):

@@ -33,7 +33,7 @@ scan_definitions = {
         "weak":{
             "title":"Weak Encryption",
             "cwe":326,
-            "description":"The software stores or transmits sensitive data using an encryption scheme that is theoretically sound, but is not strong enough for the level of protection required. A weak encryption scheme can be subjected to brute force attacks that have a reasonable chance of succeeding using current attack methods and resources. Additional information: https://cwe.mitre.org/data/definitions/311.html",
+            "description":"The software stores or transmits sensitive data using an encryption scheme that is theoretically sound, but is not strong enough for the level of protection required. A weak encryption scheme can be subjected to brute force attacks that have a reasonable chance of succeeding using current attack methods and resources. Additional information: https://cwe.mitre.org/data/definitions/326.html",
         }
     }
 }
