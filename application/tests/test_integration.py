@@ -20,12 +20,12 @@ class TestIntegration():
         assert response['info'].find('Sauron') != -1
 
     @pytest.mark.parametrize(
-        "host, port, result, num_checks",
+        "host, port, proxy, exp_result, exp_checks",
         [
-            pytest.param("uol.com", 443, False, 6)
+            pytest.param("uol.com", 443, None, False, 6)
         ]
     )
-    def test_scan(self, host, port, result, num_checks):
+    def test_scan(self, host, port, proxy, exp_result, exp_checks):
         scan_data = {
             "target_host":host,
             "target_port":port
@@ -33,6 +33,6 @@ class TestIntegration():
         response = self.client.post('/scan', json=scan_data)
         response = response.json
         assert isinstance(response, dict)
-        assert response['result'] == result
+        assert response['result'] == exp_result
         num_encryption_checks = len(response['results'][0]['checks'])
-        assert num_encryption_checks == num_checks
+        assert num_encryption_checks == exp_checks
