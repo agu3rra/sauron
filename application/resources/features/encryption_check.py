@@ -114,14 +114,19 @@ class EncryptionCheck(object):
         else:
             proxies = None
         url = "http://{}:{}".format(self.host, self.port)
-        response = requests.get(url, proxies=proxies)
-        status = response.status_code
-        if status >= 200 and status < 500:
-            print("Service is up on http. Status code: {}".format(status))
-            return True
-        else:
+        try:
+            response = requests.get(url, proxies=proxies)
+            status = response.status_code
+            if status >= 200 and status < 500:
+                print("Service is up on http. Status code: {}".format(status))
+                return True
             print("Service is down on http. Status code: {}".format(status))
             return False
+        except Exception as e:
+            print("Service unresponsive. Exception generated:\n{}".format(e))
+            return False
+        
+        
 
     def scan(self, protocol='all'):
         """

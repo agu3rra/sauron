@@ -104,6 +104,7 @@ def trigger_scan():
                 "name":name,
                 "result":this_result,
                 "info":info,
+                "details":protocol,
             })
         result = process_encryption_check(outcome_definition='weak',
                                           outcome_result=response,

@@ -10,3 +10,5 @@ app.config.from_mapping(
 # Register Blueprints
 app.register_blueprint(resources.status)
 app.register_blueprint(resources.scan)
+
+app.run()
