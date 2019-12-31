@@ -1,4 +1,4 @@
-FROM python:3.8.1-alpine3.11
+FROM ubuntu:19.10
 COPY . /sauron
 WORKDIR /sauron
 USER root
@@ -11,10 +11,12 @@ RUN addgroup mordor && \
     chmod 770 -R /sauron
 
 # Setup requirements file according to deployment option (set on ENV)
-RUN python -m pip install pip --upgrade && \
-    pip install pipenv && \
+RUN apt-get update -y && \
+    apt-get install -y python3 python3-pip && \
+    python3 -m pip install pip --upgrade && \
+    pip3 install pipenv && \
     pipenv lock --requirements > requirements.txt && \
-    pip install -r requirements.txt
+    pip3 install -r requirements.txt
 
 # Change to non root user
 USER sauron
