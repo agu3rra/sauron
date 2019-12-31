@@ -1,6 +1,0 @@
-requests
-flask
-supervisor
-gunicorn
-sslyze
-pytest

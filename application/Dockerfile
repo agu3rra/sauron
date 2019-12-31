@@ -1,7 +1,6 @@
-FROM ubuntu:latest
+FROM python:3.8.1-alpine3.11
 COPY . /sauron
 WORKDIR /sauron
-ENV ENVIRONMENT "DEV"
 USER root
 
 # Create non root user and change permissions on main app folder
@@ -11,18 +10,11 @@ RUN addgroup mordor && \
     chgrp mordor /sauron && \
     chmod 770 -R /sauron
 
-# Install python3 and pip
-RUN apt-get update -y && \
-    apt-get install -y python3 python3-pip
-
 # Setup requirements file according to deployment option (set on ENV)
-RUN if [ "$ENVIRONMENT" == "DEV" ]; \
-    then REQUIREMENTS_FILE="requirements-dev.txt"; \
-    else REQUIREMENTS_FILE="requirements.txt"; fi && \
-    echo "Using $REQUIREMENTS_FILE for installing requirements." && \
-    python3 -m pip install pip --upgrade && \
-    cd requirements && \
-    pip3 install -r $REQUIREMENTS_FILE
+RUN python -m pip install pip --upgrade && \
+    pip install pipenv && \
+    pipenv lock --requirements > requirements.txt && \
+    pip install -r requirements.txt
 
 # Change to non root user
 USER sauron

@@ -2,8 +2,9 @@ import json
 from flask import Blueprint, Response, request
 from .scan_templates import scan_definitions, result_template
 from . import features as ft
+from pymongo import MongoClient
 
-
+localdb = 'mongodb://localhost:27017/'
 scan = Blueprint('scan', __name__)
 
 @scan.route('/scan', methods=['post'])
@@ -95,7 +96,9 @@ def trigger_scan():
                     ciphers_output = ""
                     for cipher in protocol['problematic_ciphers']:
                         ciphers_output += "{}; ".format(cipher)
-                    info = "This TLS protocol version is ok to use, but you have selected a set of insecure ciphers: {}".format(ciphers_output)
+                    info = "This TLS protocol version is ok to use, but you '\
+                        'have selected a set of insecure ciphers: {}".\
+                        format(ciphers_output)
                 else: # tls version issue
                     info = "Encryption protocol version is insecure."
                 outcome_result=False
@@ -110,7 +113,20 @@ def trigger_scan():
                                           outcome_result=response,
                                           checks = checks)
 
-    # Final response    
+        # record results on local DB
+        try:
+            client = MongoClient(localdb)
+            scans_db = client['scans-db']
+            sauron_collection = scans_db['sauron-collection']
+            document = {
+                "scan_input": data,
+                "results":[result]
+            }
+            document = sauron_collection.insert_one(document)
+        except Exception as e:
+            print('Exception occurred while saving scan results:\n{}'.format(e))
+
+    # Output response to requestor
     return Response(json.dumps({"result":response,
                                 "results":[result]}),
                     status=200,

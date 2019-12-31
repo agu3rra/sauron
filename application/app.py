@@ -11,4 +11,5 @@ app.config.from_mapping(
 app.register_blueprint(resources.status)
 app.register_blueprint(resources.scan)
 
+# Run main app: $ python app.py
 app.run()

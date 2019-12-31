@@ -5,13 +5,15 @@ verify_ssl = true
 
 [dev-packages]
 pytest = "*"
+coverage = "*"
 
 [packages]
 flask = "*"
 sslyze = "*"
 supervisor = "*"
-celery = "*"
 requests = "*"
+pymongo = "*"
+gunicorn = "*"
 
 [requires]
 python_version = "3.7"
