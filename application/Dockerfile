@@ -6,8 +6,8 @@ USER root
 # Create non root user and change permissions on main app folder
 RUN addgroup mordor && \
     useradd sauron -g mordor && \
-    chown sauron /sauron && \
-    chgrp mordor /sauron && \
+    chown -R sauron /sauron && \
+    chgrp -R mordor /sauron && \
     chmod 770 -R /sauron
 
 # Setup requirements file according to deployment option (set on ENV)
@@ -20,10 +20,10 @@ RUN apt-get update -y && \
 
 # Change to non root user
 USER sauron
-EXPOSE 2099
+EXPOSE 5000
 # Start processes using supervisor
 CMD supervisord \
     --nodaemon \
-    -c /sauron/application/supervisor/supervisor.conf \
+    -c /sauron/supervisor/supervisor.conf \
     --loglevel=info \
-    --logfile=/sauron/application/supervisor/logs/supervisord.log
+    --logfile=/sauron/supervisor/logs/supervisord.log
