@@ -3,9 +3,24 @@ The eye that sees security vulnerabilities in web applications.
 
 ![eye](docs/images/eye.jpg)
 
+<!-- TOC -->
+
+- [Sauron Security Scanner (Work in progress...)](#sauron-security-scanner-work-in-progress)
+- [Features](#features)
+- [Documentation](#documentation)
+- [Deployment options](#deployment-options)
+    - [As a service](#as-a-service)
+    - [Docker container](#docker-container)
+- [References](#references)
+
+<!-- /TOC -->
+
 # Features
 1. TLS protocol check.
 1. Encryption cipher suite check
+
+# Documentation
+Check out our Postman [collection](docs/postman/Sauron.postman_collection.json)! If you don't have [Postman](https://www.getpostman.com/), make sure you get it. :)
 
 # Deployment options
 ## As a service
