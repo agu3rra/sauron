@@ -1,6 +1,7 @@
 from pymongo import MongoClient
-
-MONGO_URI = 'mongodb://localhost:27017/'
+MONGO_HOST = 'mongo'
+MONGO_PORT = 27017
+MONGO_URI = 'mongodb://{0}:{1}/'.format(MONGO_HOST, MONGO_PORT)
 
 # Globals
 client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=500)

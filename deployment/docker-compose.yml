@@ -2,7 +2,7 @@ version: '3'
 services:
     flask:
         build:
-            context: ../application
+            context: ../application/flask
             dockerfile: Dockerfile
         networks:
             - middle-earth-network
