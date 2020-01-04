@@ -1,0 +1,77 @@
+{
+	"info": {
+		"_postman_id": "20fdd35f-49bb-4204-8359-d7ec59bb0c60",
+		"name": "Sauron",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "status",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{host}}/",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						""
+					]
+				},
+				"description": "Obtains the status of the API."
+			},
+			"response": []
+		},
+		{
+			"name": "scans",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{host}}/scans",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"scans"
+					]
+				},
+				"description": "Obtains the list of previous scans, containing what was their input and corresponding results."
+			},
+			"response": []
+		},
+		{
+			"name": "scan",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"target_host\":\"google.com\",\n\t\"target_port\":443\n}"
+				},
+				"url": {
+					"raw": "http://{{host}}/scan",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"scan"
+					]
+				},
+				"description": "Triggers a new scan for a given target application."
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
