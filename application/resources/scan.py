@@ -41,13 +41,15 @@ def trigger_scan():
                     mimetype='application/json')
     proxy_settings = data.get('proxy', None)
 
+    results = []
     # Encryption check
     check = ft.EncryptionCheck(host=data['target_host'],
                                port=data['target_port'],
                                proxy=proxy_settings)
     check_results = check.scan()
-    results = []
     results.append(ScanOutput.encryption_check(check_results))
+
+    # Add some more checks here
 
     # Generate a False result if any of the results contains a False result key
     final_result = True # It passes the scan until one check does not
