@@ -1,0 +1,21 @@
+version: '3'
+services:
+    flask:
+        build:
+            context: ../application
+            dockerfile: Dockerfile
+        networks:
+            - middle-earth-network
+        volumes:
+            - sauron-mongo:/data/db
+    mongo:
+        image: mongo:4.2
+        networks:
+            -middle-earth-network
+
+networks:
+    middle-earth-network
+        driver: bridge
+
+volumes:
+    sauron-mongo:
