@@ -49,7 +49,12 @@ def trigger_scan():
     check_results = check.scan()
     results.append(ScanOutput.encryption_check(check_results))
 
-    # Add some more checks here
+
+
+    # Add some more checks here once you figure out how to do it
+    # simply append more on the results array.
+
+
 
     # Generate a False result if any of the results contains a False result key
     final_result = True # It passes the scan until one check does not
