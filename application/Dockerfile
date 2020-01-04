@@ -3,6 +3,8 @@ COPY . /sauron
 WORKDIR /sauron
 USER root
 
+ENV FLASK_APP app
+
 # Create non root user and change permissions on main app folder
 RUN addgroup mordor && \
     useradd sauron -g mordor && \

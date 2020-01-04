@@ -84,7 +84,8 @@ class EncryptionCheck(object):
             )
             print("Testing connectivity with {0}:{1}".format(self.host,
                                                              self.port))
-            server_info = server_tester.perform()
+            server_info = server_tester.perform(network_timeout=3)
+            print("Connection established")
         except ServerConnectivityError as e:
             # Could not establish an SSL connection to the server
             print("Could not connect to {0}:{1}".format(self.host,
@@ -118,6 +119,9 @@ class EncryptionCheck(object):
             response = requests.get(url, proxies=proxies)
             status = response.status_code
             if status >= 200 and status < 500:
+                if status == 407:
+                    print("proxy authorization error 407")
+                    return False
                 print("Service is up on http. Status code: {}".format(status))
                 return True
             print("Service is down on http. Status code: {}".format(status))
@@ -161,6 +165,9 @@ class EncryptionCheck(object):
         # Try handshake
         server_info = self.connect()
         if server_info is None:
+            message = "SSL Handshake failed. Checking service port for "\
+                "unencrypted channels."
+            print(message)
             if self.check_service():
                 return [
                     {
@@ -176,9 +183,11 @@ class EncryptionCheck(object):
                 return []
         
         # Retrieve definitions from class to iterate
+        print("Initializing synchronous SSL scan.")
         synchronous_scanner = SynchronousScanner()
         results = []
         for protocol, policy in policies.items():
+            print("Checking {} protocol support".format(protocol))
             is_allowed = policy['allowed']
             command = policy['command']
             scan_result = synchronous_scanner.run_scan_command(
@@ -227,4 +236,5 @@ class EncryptionCheck(object):
                 "problematic_ciphers":problematic_ciphers,
             }
             results.insert(0, result)
+        print("SSL scan completed.")
         return results

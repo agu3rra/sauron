@@ -1,10 +1,10 @@
 import json
 from flask import Blueprint, Response, request
+
 from .scan_templates import scan_definitions, result_template
 from . import features as ft
-from pymongo import MongoClient
+from .database import MongoService
 
-localdb = 'mongodb://localhost:27017/'
 scan = Blueprint('scan', __name__)
 
 @scan.route('/scan', methods=['post'])
@@ -23,7 +23,9 @@ def trigger_scan():
     }
     proxy is optional.
     """
+
     data = request.get_json()
+    print("Scan request received:\n{}".format(json.dumps(data, indent=4)))
 
     # Validate scan input
     def validate_scan_input(data):
@@ -47,7 +49,7 @@ def trigger_scan():
                                port=data['target_port'],
                                proxy=proxy_settings)
     check_results = check.scan()
-    
+
     def process_encryption_check(outcome_definition,
                                  outcome_result,
                                  checks):
@@ -69,18 +71,21 @@ def trigger_scan():
 
     # Service did not respond
     if len(check_results) == 0:
+        print("Service did not respond.")
         response = False
         result = process_encryption_check(outcome_definition='no-service',
                                           outcome_result=False,
                                           checks = [])
     # Missing encryption (HTTP plain text)
     elif len(check_results) == 1:
+        print("Plain text protocol supported.")
         response = False
         result = process_encryption_check(outcome_definition='missing',
                                           outcome_result=False,
                                           checks = [])
     # SSL handshake worked.
     else:
+        print("Processing SSL protocols supported.")
         checks = []
         # if at least one check failed, then response False
         for protocol in check_results:
@@ -113,21 +118,18 @@ def trigger_scan():
                                           outcome_result=response,
                                           checks = checks)
 
-        # record results on local DB
-        try:
-            client = MongoClient(localdb)
-            scans_db = client['scans-db']
-            sauron_collection = scans_db['sauron-collection']
-            document = {
-                "scan_input": data,
-                "results":[result]
-            }
-            document = sauron_collection.insert_one(document)
-        except Exception as e:
-            print('Exception occurred while saving scan results:\n{}'.format(e))
+    # record results on local DB
+    document = {
+            "scan_input": data,
+            "results":[result]
+    }
+    (doc_id, error) = MongoService.insert('scans', document)
+    json_response = {"result":response,
+                     "results":[result]}
+    if error is not None:
+        json_response['errors'] = error
 
     # Output response to requestor
-    return Response(json.dumps({"result":response,
-                                "results":[result]}),
+    return Response(json.dumps(json_response),
                     status=200,
                     mimetype='application/json')
