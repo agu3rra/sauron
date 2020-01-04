@@ -5,6 +5,9 @@ USER root
 
 ENV FLASK_APP app
 
+# For the future, when I enable an OAuth option.
+ENV OAUTH_ENABLED "False"
+
 # Create non root user and change permissions on main app folder
 RUN addgroup mordor && \
     useradd sauron -g mordor && \
