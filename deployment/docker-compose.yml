@@ -6,15 +6,17 @@ services:
             dockerfile: Dockerfile
         networks:
             - middle-earth-network
+        ports:
+            - 5000:5000
         volumes:
             - sauron-mongo:/data/db
     mongo:
         image: mongo:4.2
         networks:
-            -middle-earth-network
+            - middle-earth-network
 
 networks:
-    middle-earth-network
+    middle-earth-network:
         driver: bridge
 
 volumes:
