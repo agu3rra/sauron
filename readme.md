@@ -33,7 +33,7 @@ Make an API call (HTTP POST) to https://sauron.com/scan. Use the above documenta
 PS: your target host must be reachable from the internet.
 
 ## Docker-compose
-If you don't want to call our internet hosted server, feel free to run one of your own using [Docker](https://www.docker.com/). Download our [docker-compose.yml](deployment/docker-compose.yml) and run the following command (assumes you have docker installed):
+If you don't want to call our internet hosted server, feel free to run one of your own using [Docker](https://www.docker.com/). Download our [docker-compose.yml](deployment/dockerhub-build/docker-compose.yml) and run the following command (assumes you have docker installed):
 > docker-compose up
 
 The service is served on http://127.0.0.1:5000/ by default.
