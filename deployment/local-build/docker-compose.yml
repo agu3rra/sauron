@@ -1,0 +1,31 @@
+version: '3'
+services:
+    flask:
+        build:
+            context: ../../application/flask
+            dockerfile: Dockerfile
+        image: agu3rra/sauron:20.01.1
+        networks:
+            - middle-earth-network
+        volumes:
+            - sauron-mongo:/data/db
+    mongo:
+        image: mongo:4.2
+        networks:
+            - middle-earth-network
+    nginx:
+        build:
+            context: ../../application/nginx
+            dockerfile: Dockerfile
+        image: agu3rra/sauron-nginx:20.01.1
+        networks:
+            - middle-earth-network
+        ports:
+            - 8080:8080
+
+networks:
+    middle-earth-network:
+        driver: bridge
+
+volumes:
+    sauron-mongo:
