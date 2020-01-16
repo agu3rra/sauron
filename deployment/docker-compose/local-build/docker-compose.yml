@@ -4,7 +4,7 @@ services:
         build:
             context: ../../application/flask
             dockerfile: Dockerfile
-        image: agu3rra/sauron:20.01.1
+        image: agu3rra/sauron-flask:20.01.1
         networks:
             - middle-earth-network
         volumes:
