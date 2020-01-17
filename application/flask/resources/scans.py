@@ -2,10 +2,12 @@ import json
 from flask import Blueprint, Response, request
 
 from .database import MongoService
+from .authorization import authorized
 
 scans = Blueprint('scans', __name__)
 
 @scans.route('/scans', methods=['get'])
+@authorized(roles_required=['admin'])
 def get_scans():
     """
     Reads all scans
