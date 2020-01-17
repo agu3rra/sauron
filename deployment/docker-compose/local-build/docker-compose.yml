@@ -2,7 +2,7 @@ version: '3'
 services:
     flask:
         build:
-            context: ../../application/flask
+            context: ../../../application/flask
             dockerfile: Dockerfile
         image: agu3rra/sauron-flask:20.01.1
         networks:
@@ -15,7 +15,7 @@ services:
             - middle-earth-network
     nginx:
         build:
-            context: ../../application/nginx
+            context: ../../../application/nginx
             dockerfile: Dockerfile
         image: agu3rra/sauron-nginx:20.01.1
         networks:
