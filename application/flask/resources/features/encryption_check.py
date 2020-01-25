@@ -84,7 +84,7 @@ class EncryptionCheck(object):
             )
             print("Testing connectivity with {0}:{1}".format(self.host,
                                                              self.port))
-            server_info = server_tester.perform(network_timeout=3)
+            server_info = server_tester.perform(network_timeout=2)
             print("Connection established")
         except ServerConnectivityError as e:
             # Could not establish an SSL connection to the server
@@ -116,7 +116,7 @@ class EncryptionCheck(object):
             proxies = None
         url = "http://{}:{}".format(self.host, self.port)
         try:
-            response = requests.get(url, proxies=proxies)
+            response = requests.get(url, proxies=proxies, timeout=2)
             status = response.status_code
             if status >= 200 and status < 500:
                 if status == 407:
