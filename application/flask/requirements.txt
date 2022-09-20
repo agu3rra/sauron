@@ -19,5 +19,5 @@ six==1.13.0
 sslyze==2.1.4
 supervisor==4.1.0
 tls-parser==1.2.1
-urllib3==1.25.7
+urllib3==1.26.5
 werkzeug==0.16.0
